@@ -1,6 +1,6 @@
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ color: '#3aa757' }, () => {
-    console.log('The color is green.')
+  chrome.pageAction.onClicked.addListener(() => {
+    window.open('./options/options.html')
   })
 
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
