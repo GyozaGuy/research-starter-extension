@@ -1,7 +1,7 @@
 {
-  "name": "Getting Started Example",
+  "name": "Title Pending",
   "version": "1.0",
-  "description": "Build an Extension!",
+  "description": "Helps identify potential issues with your family tree on FamilySearch.org.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
     "scripts": ["background.js"],
