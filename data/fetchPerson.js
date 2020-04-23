@@ -12,6 +12,8 @@ function getAge(person) {
 }
 
 async function fetchPerson(host, sessionId, personId, results) {
+  console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ fetchPerson for ${personId} $$$$$$$$$$$$$$$$$$$$$$$$$$`);
+
   // Get the persons data
   const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
     method: 'GET',
@@ -22,8 +24,9 @@ async function fetchPerson(host, sessionId, personId, results) {
 
   const personData = await response.json();
 
-  console.log(JSON.stringify(personData, null, 2));
+  // console.log(JSON.stringify(personData, null, 2));
 
+  let person;
   let personAge;
   let personShouldContinue = true;
   let foundSpouse = false;
@@ -52,25 +55,54 @@ async function fetchPerson(host, sessionId, personId, results) {
     if (personAge && personAge >= 20 && !foundSpouse) {
       results.push({
         id: spouse.id,
-        reason: 'No spouse'
+        reason: 'No spouse',
+        code: 0
       });
     }
 
+    // Determine the number of children from all spouses
+    let numberOfChildren = personData.data.spouses.reduce((acc, current) => {
+      if (current && Array.isArray(current.children)) {
+        acc += current.children.length;
+      }
+      return acc;
+    }, 0);
+
+    console.log(`Number of children ${numberOfChildren}`);
+
     // Now check for children
+    if (Array.isArray(personData.data.spouses) && personShouldContinue) {
+      // Recursively call for every child of every spouse
+      personData.data.spouses.forEach(spouse => {
+        if (Array.isArray(spouse.children)){
+          spouse.children.forEach(child => {
+            fetchPerson(host, sessionId, child.id, results);
+          })
+        }
+      });
+    }
 
-
+    // If there are no children and there could have been children, then add to the results
+    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren <= 1) {
+      results.push({
+        id: personId,
+        reason: 'Not very many children',
+        code: 1
+      });
+    }
   }
-
-  // Evaluate this person to see if we found match - if so, add to results
-
-  // Look for spouses and recursively call this function again
-
-  // Look for children and recursively call this function again
 }
 
-const environment = 'https://beta.familysearch.org';
-const sessionId = '1143a7f8-3d78-473b-8867-33758f5660d7-beta';
+async function test() {
+  const environment = 'https://beta.familysearch.org';
+  const sessionId = '1143a7f8-3d78-473b-8867-33758f5660d7-beta';
 
-results = [];
-fetchPerson(environment, sessionId, 'KWCT-N2B', results);
+  results = [];
+  await fetchPerson(environment, sessionId, 'KWCB-7WT', results);
 
+  setTimeout(() => {
+    console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
+  }, 5000);
+}
+
+test();
