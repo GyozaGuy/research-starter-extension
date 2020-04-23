@@ -1,0 +1,23 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "globals": {
+    "chrome": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "linebreak-style": ["error", "unix"],
+    "max-len": ["warn", { "code": 100 }],
+    "no-console": ["warn", { "allow": ["error", "info", "warn"] }],
+    "quotes": ["error", "single"],
+    "semi": ["error", "never"]
+  }
+}
