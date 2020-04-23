@@ -4,7 +4,7 @@
   "description": "Helps identify potential issues with your family tree on FamilySearch.org.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.mjs"],
     "persistent": false
   },
   "page_action": {

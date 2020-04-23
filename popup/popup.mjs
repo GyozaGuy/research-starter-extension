@@ -14,3 +14,5 @@ changeColor.onclick = element => {
     })
   })
 }
+
+window.open('../options/options.html')
