@@ -1,16 +1,58 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <style>
-      button {
-        height: 30px;
-        width: 30px;
-        outline: none;
-      }
-    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="popup.mjs" type="module"></script>
   </head>
   <body>
-    Any popup UI goes here
+    <form class="m-2">
+      <h3>Descendant Finder</h3>
+      <div class="form-group" width="200">
+        <select class="form-control" id="environment">
+          <option selected>Select Environment</option>
+          <option>Integration</option>
+          <option>Beta</option>
+          <option>Production</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="sessionID" aria-describedby="sessionID" placeholder="Session ID">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="personID" placeholder="Person ID">
+      </div>
+      <button type="button" class="btn btn-secondary mb-2" id="showAdvanced">Show Advanced</button>
+      <div id="advanced" hidden>
+        <button type="button" class="btn btn-secondary mb-2" id="hideAdvanced">Hide Advanced</button>
+        <div class="form-group">
+          <input type="text" class="form-control" id="minMarriageAge" placeholder="Minimum Marriage Age">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="minNoChildrenAge" placeholder="Minimum Age Without Children">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="maxDeathYear" placeholder="Maximum Death Year">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Find Descendants</button>
+    </form>
+    <div id="results">
+
+    </div>
+    <script type="text/javascript">
+      const showAdvanced = document.querySelector('#showAdvanced');
+      const hideAdvanced = document.querySelector('#hideAdvanced');
+      const advanced = document.querySelector('#advanced');
+
+      showAdvanced.onclick = function() {
+        advanced.hidden = false;
+        showAdvanced.hidden = true;
+      };
+
+      hideAdvanced.onclick = function() {
+        advanced.hidden = true;
+        showAdvanced.hidden = false;
+      };
+    </script>
   </body>
 </html>
