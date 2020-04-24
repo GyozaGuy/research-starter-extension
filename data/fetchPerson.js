@@ -11,6 +11,26 @@ function getAge(person) {
   return new Number((deathDate.getTime() - birthDate.getTime()) / 31536000000).toFixed(0);
 }
 
+const REASONS = {
+  NO_SPOUSE: 'No spouse found',
+  NO_CHILDREN: 'No children found',
+  ONE_CHILD: 'One child found'
+};
+
+// Builds a response object of a person that might benefit from some further research
+function buildResult(host, personId, reasonKey, personData) {
+  return {
+    id: personId,
+    name: personData.name,
+    lifeSpan: personData.lifeSpan,
+    age: getAge(personData),
+    reasonText: REASONS[reasonKey],
+    reasonKey,
+    personLink: `${host}/tree/person/details/${personId}`,
+    treeLink: `${host}/tree/pedigree/landscape/${personId}`,
+  };
+}
+
 async function fetchPerson(host, sessionId, personId, results) {
   console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ fetchPerson for ${personId} $$$$$$$$$$$$$$$$$$$$$$$$$$`);
 
@@ -24,40 +44,41 @@ async function fetchPerson(host, sessionId, personId, results) {
 
   const personData = await response.json();
 
-  // console.log(JSON.stringify(personData, null, 2));
-
-  let person;
+  let currentPersonData;
   let personAge;
-  let personShouldContinue = true;
+  let isPersonLiving = true;
   let foundSpouse = false;
+
+  const childrenPromiseArray = [];
 
   // Check the age to see if we are done with this person
   if (personData.data && Array.isArray(personData.data.spouses)) {
-    ['spouse1', 'spouse2'].forEach(spouseNumber => {
-      const spouse = personData.data.spouses[0][spouseNumber];
-      if (spouse && spouse.id === personId) {
-        if (!spouse.isLiving) {
-          // This is the person that we are searching for. Check to see if we should continue
-          personAge = getAge(spouse);
-          console.log(`spouse age=${personAge}`);
+    // Check all spouses to find the current person data and to discover if there is a spouse
+    personData.data.spouses.forEach(currentSpouse => {
+      ['spouse1', 'spouse2'].forEach(spouseNumber => {
+        const spouse = currentSpouse[spouseNumber];
+
+        // Check to see if this spouse represents the current person
+        if (spouse && spouse.id === personId) {
+          currentPersonData = spouse;
+
+          // If the person not living then get the age so that we can run some logic later
+          if (!spouse.isLiving) {
+            personAge = getAge(spouse);
+          } else {
+            // This person is living, so stop processing of this person
+            isPersonLiving = false;
+          }
         } else {
-          // This person is living, so stop processing of this person
-          console.log('person is living - so stopping');
-          personShouldContinue = false;
+          // This must be the spouse
+          foundSpouse = true;
         }
-      } else {
-        // This must be the spouse
-        foundSpouse = true;
-      }
-    });
+      });
+    })
 
     // If the person's age is greater than 20, and they have no spouse, then add them as a possibility
     if (personAge && personAge >= 20 && !foundSpouse) {
-      results.push({
-        id: spouse.id,
-        reason: 'No spouse',
-        code: 0
-      });
+      results.push(buildResult(host, spouse.id, REASONS.NO_SPOUSE, currentPersonData));
     }
 
     // Determine the number of children from all spouses
@@ -68,41 +89,42 @@ async function fetchPerson(host, sessionId, personId, results) {
       return acc;
     }, 0);
 
-    console.log(`Number of children ${numberOfChildren}`);
-
     // Now check for children
-    if (Array.isArray(personData.data.spouses) && personShouldContinue) {
+    if (Array.isArray(personData.data.spouses) && isPersonLiving) {
       // Recursively call for every child of every spouse
       personData.data.spouses.forEach(spouse => {
         if (Array.isArray(spouse.children)){
           spouse.children.forEach(child => {
-            fetchPerson(host, sessionId, child.id, results);
+
+            // TODO - collect all and await
+            childrenPromiseArray.push(fetchPerson(host, sessionId, child.id, results));
           })
         }
       });
     }
 
+    // Wait for the children to finish
+    await Promise.all(childrenPromiseArray);
+
     // If there are no children and there could have been children, then add to the results
-    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren <= 1) {
-      results.push({
-        id: personId,
-        reason: 'Not very many children',
-        code: 1
-      });
+    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren <= 0) {
+      results.push(buildResult(host, personId, REASONS.NO_CHILDREN, currentPersonData));
+    }
+
+    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren === 1) {
+      results.push(buildResult(host, personId, REASONS.ONE_CHILD, currentPersonData));
     }
   }
 }
 
 async function test() {
   const environment = 'https://beta.familysearch.org';
-  const sessionId = '1143a7f8-3d78-473b-8867-33758f5660d7-beta';
+  const sessionId = '55e52809-ad50-43f3-a0ca-4971892258e5-beta';
 
   results = [];
   await fetchPerson(environment, sessionId, 'KWCB-7WT', results);
 
-  setTimeout(() => {
-    console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
-  }, 5000);
+   console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
 }
 
 test();
