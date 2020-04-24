@@ -12,8 +12,9 @@ function notifyListeners(message, result) {
 
 async function testFetchPerson() {
   const host = 'https://beta.familysearch.org';
-  const sessionId = 'c732d570-99c0-43b3-8c3f-00e59e944248-beta';
+  const sessionId = '7e19b054-cca2-4a49-bc4b-85a27809ff19-beta';
   const personId = 'KWNK-G6R';
+  // const personId = 'KWJK-YBK'
   const generationsToCrawlUp = 4;
 
   // Opportunities to do further research on persons in this array
