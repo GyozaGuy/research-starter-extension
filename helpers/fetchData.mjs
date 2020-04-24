@@ -1,13 +1,9 @@
 import fetchPerson from './fetchPerson.mjs'
 
-export default async function fetchData({
-  host,
-  sessionId,
-  personId,
-  marriageAgeThreshold,
-  noChildrenAgeThreshold,
-  deathYearThreshold
-}) {
+export default async function fetchData(
+  { host, sessionId, personId, marriageAgeThreshold, noChildrenAgeThreshold, deathYearThreshold },
+  notificationCallBack = () => {}
+) {
   // This doesn't work when running locallay and not in familysearch.org
   // const host = window.location.protocol + '/' + window.location.hostname
 
@@ -27,14 +23,14 @@ export default async function fetchData({
     marriageAgeThreshold, // If the person is greater than or equal to this value, then not married could be reported
     noChildrenAgeThreshold, // If the age of the person is greater than or equal to this value, then no children will be reported
     deathYearThreshold, // If the person dies before this year, then results will be reported
-    notificationCallBack: () => {} // Optional callback that will be called when a person is being searched and when results are found
+    notificationCallBack // Optional callback that will be called when a person is being searched and when results are found
   }
 
   // Start the recursive process
   await fetchPerson(configuration, personId, results)
 
   // Show the results
-  console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`)
+  // console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`)
 
   return results
 }

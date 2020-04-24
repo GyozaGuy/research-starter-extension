@@ -7,6 +7,7 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
+    <link href="styles.css" rel="stylesheet" />
     <script src="popup.mjs" type="module"></script>
   </head>
   <body>
@@ -30,51 +31,77 @@
         />
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="personId" placeholder="Person ID" />
+        <label>
+          Person ID
+          <input type="text" class="form-control" id="personId" placeholder="Person ID" />
+        </label>
       </div>
-      <button type="button" class="btn btn-secondary mb-2" id="showAdvanced">
+      <button type="button" class="btn btn-secondary mb-2" id="toggleAdvanced">
         Show Advanced
       </button>
       <div id="advanced" hidden>
-        <button type="button" class="btn btn-secondary mb-2" id="hideAdvanced">
-          Hide Advanced
-        </button>
-        <div class="form-group">
-          <input
-            type="number"
-            min="15"
-            max="100"
-            class="form-control"
-            id="marriageAgeThreshold"
-            placeholder="Minimum Marriage Age"
-            value="20"
-          />
+        <div>
+          <label>
+            Marriage Age Threshold
+            <input
+              type="number"
+              min="15"
+              max="100"
+              class="form-control"
+              id="marriageAgeThreshold"
+              placeholder="Minimum Marriage Age"
+              value="20"
+            />
+          </label>
+          <p>
+            Show results for people who are unmarried and have an age greater than the threshold
+          </p>
         </div>
-        <div class="form-group">
-          <input
-            type="number"
-            min="15"
-            max="100"
-            class="form-control"
-            id="noChildrenAgeThreshold"
-            placeholder="Minimum Age Without Children"
-            value="30"
-          />
+        <div>
+          <label>
+            No Children Age Threshold
+            <input
+              type="number"
+              min="15"
+              max="100"
+              class="form-control"
+              id="noChildrenAgeThreshold"
+              placeholder="Minimum Age Without Children"
+              value="30"
+            />
+          </label>
+          <p>
+            Show results for people who are married, have no children, and have an age greater than
+            the threshold
+          </p>
         </div>
-        <div class="form-group">
-          <input
-            type="number"
-            min="1400"
-            max="2000"
-            class="form-control"
-            id="deathYearThreshold"
-            placeholder="Maximum Death Year"
-            value="1980"
-          />
+        <div>
+          <label>
+            Death Year Threshold
+            <input
+              type="number"
+              min="1400"
+              max="2000"
+              class="form-control"
+              id="deathYearThreshold"
+              placeholder="Maximum Death Year"
+              value="1980"
+            />
+          </label>
+          <p>
+            Show results for people who died before this threshold
+          </p>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary">Find Descendants</button>
+      <div id="bottomControls">
+        <button type="submit" id="findButton" class="btn btn-primary">Find Descendants</button>
+        <span id="searchCountContainer" hidden>
+          Persons evaluated: <span id="searchCount"></span>
+        </span>
+      </div>
     </form>
-    <div id="results"></div>
+    <div id="results">
+      <p>Press "Find Descendants" to view results!</p>
+    </div>
   </body>
 </html>
