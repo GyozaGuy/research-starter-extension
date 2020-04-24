@@ -19,7 +19,7 @@ const REASONS = {
 
 // Builds a response object of a person that might benefit from some further research
 function buildResult(host, personId, reasonKey, personData) {
-  return {
+  const result = {
     id: personId,
     name: personData.name,
     lifeSpan: personData.lifeSpan,
@@ -29,11 +29,22 @@ function buildResult(host, personId, reasonKey, personData) {
     personLink: `${host}/tree/person/details/${personId}`,
     treeLink: `${host}/tree/pedigree/landscape/${personId}`,
   };
+
+  notifyListeners(`found result`, result);
+
+  return result;
+}
+
+// This might be used to update the UI as the search progresses
+function notifyListeners(message, result) {
+  if (result) {
+    console.log(`${message} for ${result.name}`);
+  } else {
+    console.log(message);
+  }
 }
 
 async function fetchPerson(host, sessionId, personId, results) {
-  console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ fetchPerson for ${personId} $$$$$$$$$$$$$$$$$$$$$$$$$$`);
-
   // Get the persons data
   const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
     method: 'GET',
@@ -62,6 +73,8 @@ async function fetchPerson(host, sessionId, personId, results) {
         if (spouse && spouse.id === personId) {
           currentPersonData = spouse;
 
+          notifyListeners(`Searching descendants of ${currentPersonData.name}`);
+
           // If the person not living then get the age so that we can run some logic later
           if (!spouse.isLiving) {
             personAge = getAge(spouse);
@@ -78,7 +91,8 @@ async function fetchPerson(host, sessionId, personId, results) {
 
     // If the person's age is greater than 20, and they have no spouse, then add them as a possibility
     if (personAge && personAge >= 20 && !foundSpouse) {
-      results.push(buildResult(host, spouse.id, REASONS.NO_SPOUSE, currentPersonData));
+      const result = buildResult(host, spouse.id, REASONS.NO_SPOUSE, currentPersonData);
+      results.push(result);
     }
 
     // Determine the number of children from all spouses
