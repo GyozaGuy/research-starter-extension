@@ -4,18 +4,18 @@
   "description": "Helps identify potential issues with your family tree on FamilySearch.org.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
-    "page": "background.html",
+    "page": "background/background.html",
     "persistent": false
   },
   "content_scripts": [
     {
       "matches": ["*://*.familysearch.org/*"],
-      "js": ["injectContent.mjs"],
+      "js": ["content/injectContent.mjs"],
       "run_at": "document_end",
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["content.mjs", "messageActions.mjs"],
+  "web_accessible_resources": ["content/content.mjs", "messageActions.mjs"],
   "page_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {

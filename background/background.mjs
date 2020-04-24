@@ -1,4 +1,4 @@
-import messageActions from './messageActions.mjs'
+import messageActions from '../messageActions.mjs'
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
