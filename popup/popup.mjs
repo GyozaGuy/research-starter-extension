@@ -1,5 +1,6 @@
 import messageActions from '../messageActions.mjs'
 import fetchData from '../helpers/fetchData.mjs'
+import sortObjectsByProperty from '../helpers/sortObjectsByProperty.mjs'
 
 const form = document.querySelector('#inputForm')
 const envSelector = document.querySelector('#environment')
@@ -23,8 +24,9 @@ function clearResults() {
 
 function renderResults(results) {
   clearResults()
+  const sortedResults = sortObjectsByProperty(results, 'name')
 
-  results.forEach(result => {
+  sortedResults.forEach(result => {
     const row = `
       <div class="result-row">
         <input id="${result.id}-${result.reason.replace(/\s/g, '_')}" type="checkbox">
