@@ -138,6 +138,10 @@ async function fetchPerson(configuration, personId, results) {
     // Checking Missing Temple Ordinances
     try {
       const missingTempleOrdinances = await getTempleOrdinances(fetch, host, personId, sessionId)
+      // If the person is single then take out sealing to spouse ordinance
+      if (!personData.data.spouses[0].relationshipId) {
+        missingTempleOrdinances.splice(missingTempleOrdinances.indexOf("SEALING_TO_SPOUSE - Not Available"), 1)
+      }
       if (missingTempleOrdinances.length > 0) {
         results.push(buildResult(configuration, currentPersonData.id, REASONS.MISSING_ORDINANCES, currentPersonData, missingTempleOrdinances))
       }
@@ -187,6 +191,6 @@ async function fetchPerson(configuration, personId, results) {
   }
 }
 
-// if (window.module) {
-module.exports = fetchPerson;
-// }
+if (window.module) {
+  module.exports = fetchPerson;
+}
