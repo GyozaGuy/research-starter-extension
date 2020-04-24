@@ -35,9 +35,13 @@ chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) =
       break
     case messageActions.MARK_RESULT_COMPLETE:
       chrome.storage.local.get(['completedResults'], ({ completedResults = [] }) => {
-        const newCompletedResults = [...completedResults, data]
-        chrome.storage.local.set({ completedResults: newCompletedResults })
-        sendResponse(newCompletedResults)
+        if (!completedResults.includes(data)) {
+          const newCompletedResults = [...completedResults, data]
+          chrome.storage.local.set({ completedResults: newCompletedResults })
+          sendResponse(newCompletedResults)
+        } else {
+          sendResponse(completedResults)
+        }
       })
       break
     case messageActions.MARK_RESULT_INCOMPLETE:
