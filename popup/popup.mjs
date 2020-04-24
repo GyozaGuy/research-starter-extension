@@ -51,6 +51,15 @@ form.addEventListener('submit', async event => {
     }
   })
 
+  chrome.runtime.sendMessage({
+    action: messageActions.CACHE_RESULTS,
+    data: {
+      processedCount,
+      resultCount,
+      results
+    }
+  })
+
   renderResults(results)
 })
 
@@ -85,5 +94,15 @@ chrome.runtime.sendMessage({ action: messageActions.REQUEST_PERSON_ID }, personI
 chrome.runtime.sendMessage({ action: messageActions.REQUEST_SESSION_ID }, sessionId => {
   if (sessionId) {
     sessionIdField.value = sessionId
+  }
+})
+
+// Request cached results
+chrome.runtime.sendMessage({ action: messageActions.REQUEST_CACHED_RESULTS }, cachedResults => {
+  if (cachedResults && Object.keys(cachedResults).length > 0) {
+    renderResults(cachedResults.results)
+    processedCountBox.textContent = cachedResults.processedCount
+    resultCountBox.textContent = cachedResults.resultCount
+    searchCountContainer.hidden = false
   }
 })

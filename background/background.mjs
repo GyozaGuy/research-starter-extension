@@ -27,6 +27,14 @@ let cachedSessionId = ''
 
 chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) => {
   switch (action) {
+    case messageActions.CACHE_RESULTS:
+      chrome.storage.local.set({ cachedResults: data })
+      break
+    case messageActions.REQUEST_CACHED_RESULTS:
+      chrome.storage.local.get(['cachedResults'], results => {
+        sendResponse(results.cachedResults)
+      })
+      break
     case messageActions.REQUEST_ENVIRONMENT:
       sendResponse(cachedEnvironment)
       break
@@ -52,4 +60,6 @@ chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) =
       cachedSessionId = data
       break
   }
+
+  return true
 })
