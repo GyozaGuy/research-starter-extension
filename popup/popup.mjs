@@ -8,7 +8,8 @@ const personIdField = document.querySelector('#personId')
 const toggleAdvanced = document.querySelector('#toggleAdvanced')
 const advanced = document.querySelector('#advanced')
 const searchCountContainer = document.querySelector('#searchCountContainer')
-const searchCount = document.querySelector('#searchCount')
+const processedCountBox = document.querySelector('#processedCountBox')
+const resultCountBox = document.querySelector('#resultCountBox')
 const resultsContainer = document.querySelector('#results')
 
 let cachedHost = ''
@@ -22,8 +23,9 @@ function renderResults(results) {
     const row = `
       <div class="result-row">
         <a href="${result.personLink}" target="_blank">
-          ${result.name} (${result.lifeSpan}) Reason: ${result.reason}
+          ${result.name} (${result.lifeSpan})
         </a>
+        <span>Reason: ${result.reason}</span>
       </div>
     `
     const span = document.createElement('span')
@@ -39,9 +41,14 @@ form.addEventListener('submit', async event => {
   delete data.environment // We don't need this for now
   data.host = cachedHost
   searchCountContainer.hidden = false
-  let count = 0
-  const results = await fetchData(data, () => {
-    searchCount.textContent = ++count
+  let processedCount = 0
+  let resultCount = 0
+  const results = await fetchData(data, (_, result) => {
+    if (result) {
+      resultCountBox.textContent = ++resultCount
+    } else {
+      processedCountBox.textContent = ++processedCount
+    }
   })
 
   renderResults(results)
