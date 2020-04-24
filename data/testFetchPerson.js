@@ -16,20 +16,23 @@ async function test() {
   const personId = 'KWNK-G6R';
   const generationsToCrawlUp = 4;
 
+  // Opportunities to do further research on persons in this array
   results = [];
 
   const configuration = {
-    fetch = window.fetch,
-    host,
-    sessionId,
-    marriageAgeThreshold: 20,
-    noChildrenAgeThreshold: 30,
-    deathYearThreshold: 1980,
-    notificationCallBack: notifyListeners
+    fetch, // If not provided then window.fetch will be used
+    host, // Host to call (ie https://beta.familysearch.org)
+    sessionId, // Session id that goes along with the host above (ie beta.familysearch.org will expect a sessionId from beta)
+    marriageAgeThreshold: 20, // If the person is greater than or equal to this value, then not married could be reported
+    noChildrenAgeThreshold: 30, // If the age of the person is greater than or equal to this value, then no children will be reported
+    deathYearThreshold: 1980,  // If the person dies before this year, then results will be reported
+    notificationCallBack: notifyListeners // Optional callback that will be called when a person is being searched and when results are found
   };
 
+  // Start the recursive process
   await fetchPerson(configuration, personId, results);
 
+  // Show the results
   console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
 }
 

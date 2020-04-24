@@ -1,19 +1,23 @@
+// Helper function to convert a julian date into a javascript Date
 function julianToDate(julianDate) {
   return new Date((julianDate - 2440587.5) * 86400000);
 }
 
+// Helper function to calculate the age
 function getAge(person) {
   const birthDate = julianToDate(person.lifespanBegin);
   const deathDate = julianToDate(person.lifespanEnd);
 
-  return new Number((deathDate.getTime() - birthDate.getTime()) / 31536000000).toFixed(0);
+  return parseInt(new Number((deathDate.getTime() - birthDate.getTime()) / 31536000000).toFixed(0));
 }
 
+// Helper function that returns the death year of the person
 function getDeathYear(person) {
   const deathDate = julianToDate(person.lifespanEnd);
   return deathDate.getFullYear();
 }
 
+// Possible reasons why a person was reported for further research
 const REASONS = {
   NO_SPOUSE: 'No spouse found',
   NO_CHILDREN: 'No children found',
@@ -46,15 +50,21 @@ function buildResult(configuration, personId, reasonKey, personData) {
 async function fetchPerson(configuration, personId, results) {
   const { fetch = window.fetch, host, sessionId, marriageAgeThreshold, deathYearThreshold, noChildrenAgeThreshold } = configuration;
 
-  // Get the persons data
-  const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${sessionId}`
-    }
-  });
+  let personData;
+  try {
+    // Get the persons data
+    const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${sessionId}`
+      }
+    });
 
-  const personData = await response.json();
+    personData = await response.json();
+  } catch (err) {
+    console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+    console.log(err);
+  }
 
   let currentPersonData;
   let personAge;
@@ -65,7 +75,7 @@ async function fetchPerson(configuration, personId, results) {
   const childrenPromiseArray = [];
 
   // Check the age to see if we are done with this person
-  if (personData.data && Array.isArray(personData.data.spouses)) {
+  if (personData && personData.data && Array.isArray(personData.data.spouses)) {
     // Check all spouses to find the current person data and to discover if there is a spouse
     personData.data.spouses.forEach(currentSpouse => {
       ['spouse1', 'spouse2'].forEach(spouseNumber => {
@@ -85,7 +95,7 @@ async function fetchPerson(configuration, personId, results) {
             personDeathYear = getDeathYear(spouse);
             isPersonLiving = false;
           }
-        } else {
+        } else if(spouse) {
           // This must be the spouse
           foundSpouse = true;
         }
@@ -93,8 +103,8 @@ async function fetchPerson(configuration, personId, results) {
     })
 
     // If the person's age is greater than the configured marriage threshold, and they have no spouse, then add them as a possibility
-    if (personAge && personAge >= 20 && !foundSpouse) {
-      const result = buildResult(configuration, spouse.id, REASONS.NO_SPOUSE, currentPersonData);
+    if (personAge && personAge >= marriageAgeThreshold && !foundSpouse && personDeathYear <= deathYearThreshold) {
+      const result = buildResult(configuration, currentPersonData.id, REASONS.NO_SPOUSE, currentPersonData);
       results.push(result);
     }
 
@@ -124,7 +134,11 @@ async function fetchPerson(configuration, personId, results) {
     // If there are no children and there could have been children, then add to the results
     [0, 1].forEach(numChildren => {
       if (personAge && personAge >= marriageAgeThreshold && foundSpouse && numberOfChildren === numChildren && personDeathYear <= deathYearThreshold && personAge >= noChildrenAgeThreshold) {
-        results.push(buildResult(configuration, personId, REASONS.NO_CHILDREN, currentPersonData));
+        if (numChildren === 0) {
+          results.push(buildResult(configuration, personId, REASONS.NO_CHILDREN, currentPersonData));
+        } else {
+          results.push(buildResult(configuration, personId, REASONS.ONE_CHILD, currentPersonData));
+        }
       }
     });
   }
