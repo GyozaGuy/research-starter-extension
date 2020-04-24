@@ -1,6 +1,7 @@
 import messageActions from '../messageActions.mjs'
 
 const envSelector = document.querySelector('#environment')
+const sessionIdField = document.querySelector('#sessionID')
 const personIdField = document.querySelector('#personID')
 const showAdvanced = document.querySelector('#showAdvanced')
 const hideAdvanced = document.querySelector('#hideAdvanced')
@@ -27,5 +28,12 @@ chrome.runtime.sendMessage({ action: messageActions.REQUEST_ENVIRONMENT }, envir
 chrome.runtime.sendMessage({ action: messageActions.REQUEST_PERSON_ID }, personId => {
   if (personId) {
     personIdField.value = personId
+  }
+})
+
+// Request session ID
+chrome.runtime.sendMessage({ action: messageActions.REQUEST_SESSION_ID }, sessionId => {
+  if (sessionId) {
+    sessionIdField.value = sessionId
   }
 })

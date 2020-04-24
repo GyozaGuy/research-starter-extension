@@ -1,4 +1,5 @@
 import messageActions from '../messageActions.mjs'
+import readCookie from '../helpers/readCookie.mjs'
 
 const environment = location.host.match(/^(\w+)\.familysearch/)[1]
 const personId = location.pathname.match(/\/([A-Z0-9-]+)$/)[1]
@@ -15,6 +16,10 @@ chrome.runtime.sendMessage(chrome.runtime.id, {
 chrome.runtime.sendMessage(chrome.runtime.id, {
   action: messageActions.SET_PERSON_ID,
   data: personId
+})
+chrome.runtime.sendMessage(chrome.runtime.id, {
+  action: messageActions.SET_SESSION_ID,
+  data: readCookie('fssessionid')
 })
 
 setTimeout(() => {

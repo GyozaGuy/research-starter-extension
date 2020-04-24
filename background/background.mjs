@@ -22,6 +22,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 let cachedEnvironment = ''
 let cachedPersonId = ''
+let cachedSessionId = ''
 
 chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) => {
   switch (action) {
@@ -31,11 +32,17 @@ chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) =
     case messageActions.REQUEST_PERSON_ID:
       sendResponse(cachedPersonId)
       break
+    case messageActions.REQUEST_SESSION_ID:
+      sendResponse(cachedSessionId)
+      break
     case messageActions.SET_ENVIRONMENT:
       cachedEnvironment = data
       break
     case messageActions.SET_PERSON_ID:
       cachedPersonId = data
+      break
+    case messageActions.SET_SESSION_ID:
+      cachedSessionId = data
       break
   }
 })

@@ -15,7 +15,11 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["content/content.mjs", "messageActions.mjs"],
+  "web_accessible_resources": [
+    "content/content.mjs",
+    "helpers/readCookie.mjs",
+    "messageActions.mjs"
+  ],
   "page_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
