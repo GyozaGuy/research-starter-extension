@@ -17,15 +17,44 @@ function getDeathYear(person) {
   return deathDate.getFullYear()
 }
 
+// Helper function to grab temple ordinance information
+async function getTempleOrdinances(fetch, host, personId, sessionId) {
+  let templeData
+  try {
+    const response = await fetch(
+      `${host}/service/tree/tree-data/reservations/v2/person/${personId}/ordinances`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${sessionId}`
+        }
+      }
+    )
+    templeData = await response.json()
+  } catch (err) {
+    console.log(err)
+  }
+  // Not Available can mean it was never done or it was done but not submitted on the Family Search site
+  const result = templeData.ordinances.reduce((accum, ordinance) => {
+    if (ordinance.statusText === 'Not Available') {
+      accum.push(`${ordinance.type} - ${ordinance.statusText}`)
+      return accum
+    }
+    return accum
+  }, [])
+  return result
+}
+
 // Possible reasons why a person was reported for further research
 const REASONS = {
   NO_SPOUSE: 'No spouse found',
   NO_CHILDREN: 'No children found',
-  ONE_CHILD: 'One child found'
+  ONE_CHILD: 'One child found',
+  MISSING_ORDINANCES: 'Missing temple ordinances'
 }
 
 // Builds a response object of a person that might benefit from some further research
-function buildResult(configuration, personId, reason, personData) {
+function buildResult(configuration, personId, reason, personData, missingOrdinances = []) {
   const result = {
     id: personId,
     name: personData.name,
@@ -34,6 +63,13 @@ function buildResult(configuration, personId, reason, personData) {
     reason,
     personLink: `${configuration.host}/tree/person/details/${personId}`,
     treeLink: `${configuration.host}/tree/pedigree/landscape/${personId}`
+  }
+
+  // If the buildResult is for missingOrdinances add the missing ordinances
+  if (missingOrdinances.length > 0) {
+    result.missingOrdinances = missingOrdinances
+    // console.log("missing", result)
+    // console.log("ordinances", missingOrdinances)
   }
 
   if (configuration.notificationCallBack) {
@@ -110,6 +146,31 @@ export default async function fetchPerson(configuration, personId, results) {
         }
       })
     })
+
+    // Checking Missing Temple Ordinances
+    try {
+      const missingTempleOrdinances = await getTempleOrdinances(fetch, host, personId, sessionId)
+      // If the person is single then take out sealing to spouse ordinance
+      if (!personData.data.spouses[0].relationshipId) {
+        missingTempleOrdinances.splice(
+          missingTempleOrdinances.indexOf('SEALING_TO_SPOUSE - Not Available'),
+          1
+        )
+      }
+      if (missingTempleOrdinances.length > 0) {
+        results.push(
+          buildResult(
+            configuration,
+            currentPersonData.id,
+            REASONS.MISSING_ORDINANCES,
+            currentPersonData,
+            missingTempleOrdinances
+          )
+        )
+      }
+    } catch (err) {
+      console.log('temple', personId, err)
+    }
 
     // If the person's age is greater than the configured marriage threshold, and they have no spouse, then add them as a possibility
     if (
