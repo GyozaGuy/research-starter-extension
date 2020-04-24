@@ -1,12 +1,21 @@
 {
-  "name": "Title Pending",
+  "name": "Descendant Finder",
   "version": "1.0",
   "description": "Helps identify potential issues with your family tree on FamilySearch.org.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
-    "scripts": ["background.mjs"],
+    "page": "background.html",
     "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*.familysearch.org/*"],
+      "js": ["injectContent.mjs"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": ["content.mjs", "messageActions.mjs"],
   "page_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {

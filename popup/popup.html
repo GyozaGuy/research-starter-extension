@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
     <script src="popup.mjs" type="module"></script>
   </head>
   <body>
@@ -9,50 +14,56 @@
       <h3>Descendant Finder</h3>
       <div class="form-group" width="200">
         <select class="form-control" id="environment">
-          <option selected>Select Environment</option>
-          <option>Integration</option>
-          <option>Beta</option>
-          <option>Production</option>
+          <option value="" selected>Select Environment</option>
+          <option value="int">Integration</option>
+          <option value="beta">Beta</option>
+          <option value="prod">Production</option>
         </select>
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="sessionID" aria-describedby="sessionID" placeholder="Session ID">
+        <input
+          type="text"
+          class="form-control"
+          id="sessionID"
+          aria-describedby="sessionID"
+          placeholder="Session ID"
+        />
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="personID" placeholder="Person ID">
+        <input type="text" class="form-control" id="personID" placeholder="Person ID" />
       </div>
       <button type="button" class="btn btn-secondary mb-2" id="showAdvanced">Show Advanced</button>
       <div id="advanced" hidden>
-        <button type="button" class="btn btn-secondary mb-2" id="hideAdvanced">Hide Advanced</button>
+        <button type="button" class="btn btn-secondary mb-2" id="hideAdvanced">
+          Hide Advanced
+        </button>
         <div class="form-group">
-          <input type="text" class="form-control" id="minMarriageAge" placeholder="Minimum Marriage Age">
+          <input
+            type="text"
+            class="form-control"
+            id="minMarriageAge"
+            placeholder="Minimum Marriage Age"
+          />
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" id="minNoChildrenAge" placeholder="Minimum Age Without Children">
+          <input
+            type="text"
+            class="form-control"
+            id="minNoChildrenAge"
+            placeholder="Minimum Age Without Children"
+          />
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" id="maxDeathYear" placeholder="Maximum Death Year">
+          <input
+            type="text"
+            class="form-control"
+            id="maxDeathYear"
+            placeholder="Maximum Death Year"
+          />
         </div>
       </div>
       <button type="submit" class="btn btn-primary">Find Descendants</button>
     </form>
-    <div id="results">
-
-    </div>
-    <script type="text/javascript">
-      const showAdvanced = document.querySelector('#showAdvanced');
-      const hideAdvanced = document.querySelector('#hideAdvanced');
-      const advanced = document.querySelector('#advanced');
-
-      showAdvanced.onclick = function() {
-        advanced.hidden = false;
-        showAdvanced.hidden = true;
-      };
-
-      hideAdvanced.onclick = function() {
-        advanced.hidden = true;
-        showAdvanced.hidden = false;
-      };
-    </script>
+    <div id="results"></div>
   </body>
 </html>
