@@ -44,7 +44,12 @@ function notifyListeners(message, result) {
   }
 }
 
-async function fetchPerson(host, sessionId, personId, results) {
+/**
+ * Fetches the data for the given person id, evaluates that person and recursively calls back to this function with each child
+ */
+async function fetchPerson(configuration, personId, results) {
+  const { host, sessionId, marriageAgeThreshold, deathYearThreshold } = configuration;
+
   // Get the persons data
   const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
     method: 'GET',
@@ -89,7 +94,7 @@ async function fetchPerson(host, sessionId, personId, results) {
       });
     })
 
-    // If the person's age is greater than 20, and they have no spouse, then add them as a possibility
+    // If the person's age is greater than the configured marriage threshold, and they have no spouse, then add them as a possibility
     if (personAge && personAge >= 20 && !foundSpouse) {
       const result = buildResult(host, spouse.id, REASONS.NO_SPOUSE, currentPersonData);
       results.push(result);
@@ -109,36 +114,38 @@ async function fetchPerson(host, sessionId, personId, results) {
       personData.data.spouses.forEach(spouse => {
         if (Array.isArray(spouse.children)){
           spouse.children.forEach(child => {
-
-            // TODO - collect all and await
-            childrenPromiseArray.push(fetchPerson(host, sessionId, child.id, results));
+            childrenPromiseArray.push(fetchPerson(configuration, child.id, results));
           })
         }
       });
     }
 
-    // Wait for the children to finish
+    // Wait for all of the children to finish before returning
     await Promise.all(childrenPromiseArray);
 
     // If there are no children and there could have been children, then add to the results
-    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren <= 0) {
+    if (personAge && personAge >= marriageAgeThreshold && foundSpouse && numberOfChildren <= 0) {
       results.push(buildResult(host, personId, REASONS.NO_CHILDREN, currentPersonData));
     }
 
-    if (personAge && personAge >= 20 && foundSpouse && numberOfChildren === 1) {
+    if (personAge && personAge >= marriageAgeThreshold && foundSpouse && numberOfChildren === 1) {
       results.push(buildResult(host, personId, REASONS.ONE_CHILD, currentPersonData));
     }
   }
 }
 
-async function test() {
-  const environment = 'https://beta.familysearch.org';
-  const sessionId = '55e52809-ad50-43f3-a0ca-4971892258e5-beta';
-
-  results = [];
-  await fetchPerson(environment, sessionId, 'KWCB-7WT', results);
-
-   console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
+if (module) {
+  module.exports = fetchPerson;
 }
 
-test();
+// async function test() {
+//   const environment = 'https://beta.familysearch.org';
+//   const sessionId = '55e52809-ad50-43f3-a0ca-4971892258e5-beta';
+
+//   results = [];
+//   await fetchPerson(environment, sessionId, 'KWCB-7WT', results);
+
+//    console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
+// }
+
+// test();
