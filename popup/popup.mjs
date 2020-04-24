@@ -18,10 +18,14 @@ hideAdvanced.onclick = function() {
 
 // Request environment
 chrome.runtime.sendMessage({ action: messageActions.REQUEST_ENVIRONMENT }, environment => {
-  envSelector.value = environment
+  if (environment) {
+    envSelector.value = environment
+  }
 })
 
 // Request person ID
 chrome.runtime.sendMessage({ action: messageActions.REQUEST_PERSON_ID }, personId => {
-  personIdField.value = personId
+  if (personId) {
+    personIdField.value = personId
+  }
 })
