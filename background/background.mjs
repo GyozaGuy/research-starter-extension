@@ -30,13 +30,38 @@ chrome.runtime.onMessage.addListener(({ action, data }, _sender, sendResponse) =
     case messageActions.CACHE_RESULTS:
       chrome.storage.local.set({ cachedResults: data })
       break
-    case messageActions.REQUEST_CACHED_RESULTS:
-      chrome.storage.local.get(['cachedResults'], results => {
-        sendResponse(results.cachedResults)
+    case messageActions.CLEAR_RESULTS_CACHE:
+      chrome.storage.local.remove(['cachedResults'])
+      break
+    case messageActions.MARK_RESULT_COMPLETE:
+      chrome.storage.local.get(['completedResults'], ({ completedResults = [] }) => {
+        const newCompletedResults = [...completedResults, data]
+        chrome.storage.local.set({ completedResults: newCompletedResults })
+        sendResponse(newCompletedResults)
       })
+      break
+    case messageActions.MARK_RESULT_INCOMPLETE:
+      chrome.storage.local.get(['completedResults'], ({ completedResults = [] }) => {
+        completedResults.splice(completedResults.indexOf(data), 1)
+        chrome.storage.local.set({ completedResults })
+        sendResponse(completedResults)
+      })
+      break
+    case messageActions.REQUEST_CACHED_RESULTS:
+      chrome.storage.local.get(
+        ['cachedResults', 'completedResults'],
+        ({ cachedResults, completedResults = [] }) => {
+          sendResponse({ cachedResults, completedResults })
+        }
+      )
       break
     case messageActions.REQUEST_ENVIRONMENT:
       sendResponse(cachedEnvironment)
+      break
+    case messageActions.REQUEST_COMPLETED_RESULTS: // NOTE: currently unused
+      chrome.storage.local.get(['completedResults'], ({ completedResults = [] }) => {
+        sendResponse(completedResults)
+      })
       break
     case messageActions.REQUEST_HOST:
       sendResponse(cachedHost)

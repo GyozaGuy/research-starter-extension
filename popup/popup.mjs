@@ -12,16 +12,22 @@ const processedCountBox = document.querySelector('#processedCountBox')
 const resultCountBox = document.querySelector('#resultCountBox')
 const resultsContainer = document.querySelector('#results')
 
+let cachedCompletedResults = []
 let cachedHost = ''
 
-function renderResults(results) {
+function clearResults() {
   while (resultsContainer.lastChild) {
     resultsContainer.lastChild.remove()
   }
+}
+
+function renderResults(results) {
+  clearResults()
 
   results.forEach(result => {
     const row = `
       <div class="result-row">
+        <input id="${result.id}-${result.reason.replace(/\s/g, '_')}" type="checkbox">
         <a href="${result.personLink}" target="_blank">
           ${result.name} (${result.lifeSpan})
         </a>
@@ -34,15 +40,31 @@ function renderResults(results) {
   })
 }
 
+function markCompletedResults(completedResults) {
+  completedResults.forEach(result => {
+    const checkbox = document.querySelector(`#${result}`)
+    checkbox.checked = true
+  })
+}
+
 form.addEventListener('submit', async event => {
   event.preventDefault()
 
   const data = [...form.elements].reduce((configObj, el) => ({ ...configObj, [el.id]: el.value }))
   delete data.environment // We don't need this for now
   data.host = cachedHost
+
+  clearResults()
+  resultsContainer.innerHTML = '<p>Searching...</p>'
+
+  chrome.runtime.sendMessage({ action: messageActions.CLEAR_RESULTS_CACHE })
   searchCountContainer.hidden = false
   let processedCount = 0
   let resultCount = 0
+
+  processedCountBox.textContent = '0'
+  resultCountBox.textContent = '0'
+
   const results = await fetchData(data, (_, result) => {
     if (result) {
       resultCountBox.textContent = ++resultCount
@@ -61,6 +83,7 @@ form.addEventListener('submit', async event => {
   })
 
   renderResults(results)
+  markCompletedResults(cachedCompletedResults)
 })
 
 toggleAdvanced.onclick = ({ target: { textContent } }) => {
@@ -68,6 +91,32 @@ toggleAdvanced.onclick = ({ target: { textContent } }) => {
     textContent.trim() === 'Show Advanced' ? 'Hide Advanced' : 'Show Advanced'
   advanced.hidden = toggleAdvanced.textContent === 'Show Advanced'
 }
+
+resultsContainer.addEventListener('click', ({ target: { checked, id, type } }) => {
+  if (type === 'checkbox') {
+    if (checked) {
+      chrome.runtime.sendMessage(
+        {
+          action: messageActions.MARK_RESULT_COMPLETE,
+          data: id
+        },
+        completedResults => {
+          cachedCompletedResults = completedResults
+        }
+      )
+    } else {
+      chrome.runtime.sendMessage(
+        {
+          action: messageActions.MARK_RESULT_INCOMPLETE,
+          data: id
+        },
+        completedResults => {
+          cachedCompletedResults = completedResults
+        }
+      )
+    }
+  }
+})
 
 // Request environment
 chrome.runtime.sendMessage({ action: messageActions.REQUEST_ENVIRONMENT }, environment => {
@@ -98,11 +147,17 @@ chrome.runtime.sendMessage({ action: messageActions.REQUEST_SESSION_ID }, sessio
 })
 
 // Request cached results
-chrome.runtime.sendMessage({ action: messageActions.REQUEST_CACHED_RESULTS }, cachedResults => {
-  if (cachedResults && Object.keys(cachedResults).length > 0) {
-    renderResults(cachedResults.results)
-    processedCountBox.textContent = cachedResults.processedCount
-    resultCountBox.textContent = cachedResults.resultCount
-    searchCountContainer.hidden = false
+chrome.runtime.sendMessage(
+  { action: messageActions.REQUEST_CACHED_RESULTS },
+  ({ cachedResults, completedResults }) => {
+    if (cachedResults && Object.keys(cachedResults).length > 0) {
+      renderResults(cachedResults.results)
+      markCompletedResults(completedResults)
+
+      cachedCompletedResults = completedResults
+      processedCountBox.textContent = cachedResults.processedCount
+      resultCountBox.textContent = cachedResults.resultCount
+      searchCountContainer.hidden = false
+    }
   }
-})
+)
