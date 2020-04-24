@@ -1,7 +1,7 @@
 import messageActions from '../messageActions.mjs'
 
 const environment = location.host.match(/^(\w+)\.familysearch/)[1]
-const personId = location.pathname.match(/\/([A-Z-]+)$/)[1]
+const personId = location.pathname.match(/\/([A-Z0-9-]+)$/)[1]
 const envMap = {
   beta: 'beta',
   integration: 'int',
