@@ -15,7 +15,7 @@
         }
       }
 
-      async function fetchData(personId) {
+      async function fetchData(sessionId, personId) {
         // This doesn't work when running locallay and not in familysearch.org
         // const host = window.location.protocol + '/' + window.location.hostname
         const host = 'https://beta.familysearch.org';
@@ -23,7 +23,6 @@
 
         // This doesn't work when running locally
         // const sessionId = readCookie('fssessionid');
-        const sessionId = '5757ebe6-62bc-49c2-956d-d74558f13234-beta';
 
         // const personId = 'KWNK-G6R';
         const generationsToCrawlUp = 4;
@@ -52,9 +51,10 @@
 
       window.onload = (event) => {
         const personIdInput = document.querySelector('.person-id');
+        const sessionIdInput = document.querySelector('.session-id');
         const fetchButton = document.querySelector('.fetch-button');
         fetchButton.addEventListener('click', async () => {
-          const results = await fetchData(personIdInput.value);
+          const results = await fetchData(sessionIdInput.value, personIdInput.value);
           renderResults(results);
         });
       };
@@ -87,9 +87,20 @@
     </style>
   </head>
   <body>
-    <label>Person ID</label>
-    <input class="person-id" type="text" value="KWNK-G6R"></input>
-    <button class="fetch-button" type="button">Get data</button>
+    <div>
+      <label>Person ID</label>
+      <input class="person-id" type="text" value="KWNK-G6R"></input>
+    </div>
+
+    <div>
+      <label>Session ID</label>
+      <input class="session-id" type="text" value=""></input>
+    </div>
+
+    <div>
+      <button class="fetch-button" type="button">Get data</button>
+    </div>
+
     <div class="results-container">
 
     </div>
