@@ -14,6 +14,10 @@ chrome.runtime.sendMessage(chrome.runtime.id, {
   data: envMap[environment]
 })
 chrome.runtime.sendMessage(chrome.runtime.id, {
+  action: messageActions.SET_HOST,
+  data: location.origin
+})
+chrome.runtime.sendMessage(chrome.runtime.id, {
   action: messageActions.SET_PERSON_ID,
   data: personId
 })
@@ -22,17 +26,17 @@ chrome.runtime.sendMessage(chrome.runtime.id, {
   data: readCookie('fssessionid')
 })
 
-setTimeout(() => {
-  const personPage = document.body.querySelector('fs-person-page').shadowRoot // Joys of shadow DOM
-  const personDetails = personPage.querySelector('.fs-person__details')
-  const newButton = document.createElement('button')
-
-  newButton.classList.add('fs-button', 'fs-button--minor')
-  newButton.style.padding = '0'
-  newButton.textContent = 'Find descendant possibilities'
-  newButton.addEventListener('click', () => {
-    console.log('clicked!')
-  })
-
-  personDetails.appendChild(newButton)
-}, 1000)
+// setTimeout(() => {
+//   const personPage = document.body.querySelector('fs-person-page').shadowRoot // Joys of shadow DOM
+//   const personDetails = personPage.querySelector('.fs-person__details')
+//   const newButton = document.createElement('button')
+//
+//   newButton.classList.add('fs-button', 'fs-button--minor')
+//   newButton.style.padding = '0'
+//   newButton.textContent = 'Find descendant possibilities'
+//   newButton.addEventListener('click', () => {
+//     console.log('clicked!')
+//   })
+//
+//   personDetails.appendChild(newButton)
+// }, 1000)
