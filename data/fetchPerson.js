@@ -25,14 +25,13 @@ const REASONS = {
 };
 
 // Builds a response object of a person that might benefit from some further research
-function buildResult(configuration, personId, reasonKey, personData) {
+function buildResult(configuration, personId, reason, personData) {
   const result = {
     id: personId,
     name: personData.name,
     lifeSpan: personData.lifeSpan,
     age: getAge(personData),
-    reasonText: REASONS[reasonKey],
-    reasonKey,
+    reason,
     personLink: `${configuration.host}/tree/person/details/${personId}`,
     treeLink: `${configuration.host}/tree/pedigree/landscape/${personId}`,
   };
@@ -144,6 +143,6 @@ async function fetchPerson(configuration, personId, results) {
   }
 }
 
-if (module) {
+if (window.module) {
   module.exports = fetchPerson;
 }

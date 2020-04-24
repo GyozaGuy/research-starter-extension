@@ -4,7 +4,8 @@
   "description": "This is a simple Chrome extension to help identify issues with your tree on [FamilySearch.org](https://familysearch.org).",
   "main": "./data/fetchPerson.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "testDataFetch": "http-server ./data"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/GyozaGuy/star-command-extension#readme",
   "dependencies": {
+    "http-server": "^0.12.1",
     "node-fetch": "^2.6.0"
   }
 }

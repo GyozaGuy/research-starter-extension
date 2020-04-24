@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="helpers.js"></script>
+    <script src="fetchPerson.js"></script>
+    <script>
+      function notifyListeners(message, result) {
+        if (result) {
+          console.log(`${message} for ${result.name}`);
+        } else {
+          console.log(message);
+        }
+      }
+
+      async function fetchData(personId) {
+        // This doesn't work when running locallay and not in familysearch.org
+        // const host = window.location.protocol + '/' + window.location.hostname
+        const host = 'https://beta.familysearch.org';
+
+
+        // This doesn't work when running locally
+        // const sessionId = readCookie('fssessionid');
+        const sessionId = '5757ebe6-62bc-49c2-956d-d74558f13234-beta';
+
+        // const personId = 'KWNK-G6R';
+        const generationsToCrawlUp = 4;
+
+        // Opportunities to do further research on persons in this array
+        results = [];
+
+        const configuration = {
+          fetch, // If not provided then window.fetch will be used
+          host, // Host to call (ie https://beta.familysearch.org)
+          sessionId, // Session id that goes along with the host above (ie beta.familysearch.org will expect a sessionId from beta)
+          marriageAgeThreshold: 20, // If the person is greater than or equal to this value, then not married could be reported
+          noChildrenAgeThreshold: 30, // If the age of the person is greater than or equal to this value, then no children will be reported
+          deathYearThreshold: 1980,  // If the person dies before this year, then results will be reported
+          notificationCallBack: notifyListeners // Optional callback that will be called when a person is being searched and when results are found
+        };
+
+        // Start the recursive process
+        await fetchPerson(configuration, personId, results);
+
+        // Show the results
+        console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
+
+        return results;
+      }
+
+      window.onload = (event) => {
+        const personIdInput = document.querySelector('.person-id');
+        const fetchButton = document.querySelector('.fetch-button');
+        fetchButton.addEventListener('click', async () => {
+          const results = await fetchData(personIdInput.value);
+          renderResults(results);
+        });
+      };
+
+      function renderResults(results) {
+        const container = document.body.querySelector('.results-container');
+        while(container.lastChild) {
+          container.lastChild.remove();
+        }
+
+        results.forEach(result => {
+          const row = `
+            <div class="result-row">
+              <a href="${result.personLink}">
+                ${result.name} (${result.lifeSpan}) Reason:${result.reason}
+              </a>
+            </div>
+          `
+          const span = document.createElement('span');
+          span.innerHTML = row;
+          container.appendChild(span);
+        })
+      };
+
+    </script>
+    <style>
+      .result-row {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <label>Person ID</label>
+    <input class="person-id" type="text" value="KWNK-G6R"></input>
+    <button class="fetch-button" type="button">Get data</button>
+    <div class="results-container">
+
+    </div>
+  </body>
+</html>

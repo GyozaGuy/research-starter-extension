@@ -10,7 +10,7 @@ function notifyListeners(message, result) {
   }
 }
 
-async function test() {
+async function testFetchPerson() {
   const host = 'https://beta.familysearch.org';
   const sessionId = 'c732d570-99c0-43b3-8c3f-00e59e944248-beta';
   const personId = 'KWNK-G6R';
@@ -36,4 +36,4 @@ async function test() {
   console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`);
 }
 
-test();
+testFetchPerson();
