@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 function julianToDate(julianDate) {
   return new Date((julianDate - 2440587.5) * 86400000);
 }
@@ -42,20 +40,11 @@ function buildResult(configuration, personId, reasonKey, personData) {
   return result;
 }
 
-// // This might be used to update the UI as the search progresses
-// function notifyListeners(message, result) {
-//   if (result) {
-//     console.log(`${message} for ${result.name}`);
-//   } else {
-//     console.log(message);
-//   }
-// }
-
 /**
  * Fetches the data for the given person id, evaluates that person and recursively calls back to this function with each child
  */
 async function fetchPerson(configuration, personId, results) {
-  const { host, sessionId, marriageAgeThreshold, deathYearThreshold } = configuration;
+  const { fetch = window.fetch, host, sessionId, marriageAgeThreshold, deathYearThreshold, noChildrenAgeThreshold } = configuration;
 
   // Get the persons data
   const response = await fetch(`${host}/service/tree/tree-data/family-members/person/${personId}`, {
@@ -134,7 +123,7 @@ async function fetchPerson(configuration, personId, results) {
 
     // If there are no children and there could have been children, then add to the results
     [0, 1].forEach(numChildren => {
-      if (personAge && personAge >= marriageAgeThreshold && foundSpouse && numberOfChildren === numChildren && personDeathYear <= deathYearThreshold) {
+      if (personAge && personAge >= marriageAgeThreshold && foundSpouse && numberOfChildren === numChildren && personDeathYear <= deathYearThreshold && personAge >= noChildrenAgeThreshold) {
         results.push(buildResult(configuration, personId, REASONS.NO_CHILDREN, currentPersonData));
       }
     });
