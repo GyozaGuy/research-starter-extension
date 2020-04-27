@@ -157,7 +157,8 @@ export default async function fetchPerson(configuration, personId, results) {
           1
         )
       }
-      if (missingTempleOrdinances.length > 0) {
+      // Person's under 8 do not need Temple Ordinances
+      if (missingTempleOrdinances.length > 0 && !isPersonLiving && personDeathYear <= deathYearThreshold && personAge >= 8) {
         results.push(
           buildResult(
             configuration,

@@ -45,7 +45,9 @@ function renderResults(results) {
 function markCompletedResults(completedResults) {
   completedResults.forEach(result => {
     const checkbox = document.querySelector(`#${result}`)
-    checkbox.checked = true
+    if (checkbox) {
+      checkbox.checked = true
+    }
   })
 }
 
