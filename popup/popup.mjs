@@ -160,7 +160,12 @@ chrome.runtime.sendMessage({ action: messageActions.REQUEST_SESSION_ID }, sessio
 chrome.runtime.sendMessage(
   { action: messageActions.REQUEST_CACHED_RESULTS },
   ({ cachedResults, completedResults }) => {
-    if (cachedResults && Object.keys(cachedResults).length > 0) {
+    if (
+      cachedResults &&
+      Object.keys(cachedResults).length > 0 &&
+      Array.isArray(cachedResults.results) &&
+      cachedResults.results.length > 0
+    ) {
       renderResults(cachedResults.results)
       markCompletedResults(completedResults)
 
