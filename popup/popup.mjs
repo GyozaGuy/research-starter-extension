@@ -45,8 +45,10 @@ function renderResults(results) {
 function markCompletedResults(completedResults) {
   completedResults.forEach(result => {
     const checkbox = document.querySelector(`#${result}`)
+
     if (checkbox) {
       checkbox.checked = true
+      checkbox.parentElement.setAttribute('completed', '')
     }
   })
 }
@@ -96,7 +98,9 @@ toggleAdvanced.onclick = ({ target: { textContent } }) => {
   advanced.hidden = toggleAdvanced.textContent === 'Show Advanced'
 }
 
-resultsContainer.addEventListener('click', ({ target: { checked, id, type } }) => {
+resultsContainer.addEventListener('click', ({ target }) => {
+  const { checked, id, type } = target
+
   if (type === 'checkbox') {
     if (checked) {
       chrome.runtime.sendMessage(
@@ -108,6 +112,7 @@ resultsContainer.addEventListener('click', ({ target: { checked, id, type } }) =
           cachedCompletedResults = completedResults
         }
       )
+      target.parentElement.setAttribute('completed', '')
     } else {
       chrome.runtime.sendMessage(
         {
@@ -118,6 +123,7 @@ resultsContainer.addEventListener('click', ({ target: { checked, id, type } }) =
           cachedCompletedResults = completedResults
         }
       )
+      target.parentElement.removeAttribute('completed')
     }
   }
 })

@@ -57,6 +57,11 @@ body {
   padding: 5px 10px;
 }
 
+.result-row[completed] {
+  font-style: italic;
+  opacity: 0.5;
+}
+
 .result-row:hover {
   background-color: LightGrey;
 }
