@@ -2,7 +2,12 @@ import messageActions from '../messageActions.mjs'
 import readCookie from '../helpers/readCookie.mjs'
 
 const environment = location.host.match(/^(\w+)\.familysearch/)[1]
-const personId = location.pathname.match(/\/([A-Z0-9-]+)$/)[1]
+const personIdToken = location.pathname.match(/\/([A-Z0-9-]+)$/)
+let personId
+if (personIdToken) {
+  personId = personIdToken[1]
+}
+
 const envMap = {
   beta: 'beta',
   integration: 'int',
