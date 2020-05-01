@@ -30,18 +30,3 @@ chrome.runtime.sendMessage(chrome.runtime.id, {
   action: messageActions.SET_SESSION_ID,
   data: readCookie('fssessionid')
 })
-
-// setTimeout(() => {
-//   const personPage = document.body.querySelector('fs-person-page').shadowRoot // Joys of shadow DOM
-//   const personDetails = personPage.querySelector('.fs-person__details')
-//   const newButton = document.createElement('button')
-//
-//   newButton.classList.add('fs-button', 'fs-button--minor')
-//   newButton.style.padding = '0'
-//   newButton.textContent = 'Find descendant possibilities'
-//   newButton.addEventListener('click', () => {
-//     console.log('clicked!')
-//   })
-//
-//   personDetails.appendChild(newButton)
-// }, 1000)
