@@ -9,10 +9,6 @@ chrome.runtime.onInstalled.addListener(() => {
             css: ['#open-copy-pid'], // Person page
             pageUrl: { hostSuffix: 'familysearch.org' }
           })
-          // new chrome.declarativeContent.PageStateMatcher({
-          //   css: ['.fs-person__id button'], // Tree
-          //   pageUrl: { hostSuffix: 'familysearch.org' }
-          // })
         ],
         actions: [new chrome.declarativeContent.ShowPageAction()]
       }
