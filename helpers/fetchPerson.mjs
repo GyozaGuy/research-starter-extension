@@ -1,3 +1,6 @@
+const MAX_REQUESTS = 500;
+const MAX_RESULTS = 100;
+
 // Helper function to convert a julian date into a javascript Date
 function julianToDate(julianDate) {
   return new Date((julianDate - 2440587.5) * 86400000)
@@ -54,7 +57,9 @@ const REASONS = {
 }
 
 // Builds a response object of a person that might benefit from some further research
-function buildResult(configuration, personId, reason, personData, missingOrdinances = []) {
+function buildResult(configuration, personId, reason, personData, counts, missingOrdinances = []) {
+  counts.resultCount++;
+
   const result = {
     id: personId,
     name: personData.name,
@@ -68,8 +73,6 @@ function buildResult(configuration, personId, reason, personData, missingOrdinan
   // If the buildResult is for missingOrdinances add the missing ordinances
   if (missingOrdinances.length > 0) {
     result.missingOrdinances = missingOrdinances
-    // console.log("missing", result)
-    // console.log("ordinances", missingOrdinances)
   }
 
   if (configuration.notificationCallBack) {
@@ -82,7 +85,13 @@ function buildResult(configuration, personId, reason, personData, missingOrdinan
 /**
  * Fetches the data for the given person id, evaluates that person and recursively calls back to this function with each child
  */
-export default async function fetchPerson(configuration, personId, results) {
+export default async function fetchPerson(configuration, personId, results, counts) {
+  if (counts.resultCount >= MAX_RESULTS || counts.requestCount >= MAX_REQUESTS) {
+    return;
+  }
+
+  counts.requestCount++;
+
   const {
     fetch = window.fetch,
     host,
@@ -165,12 +174,13 @@ export default async function fetchPerson(configuration, personId, results) {
             currentPersonData.id,
             REASONS.MISSING_ORDINANCES,
             currentPersonData,
+            counts,
             missingTempleOrdinances
           )
         )
       }
     } catch (err) {
-      console.log('temple', personId, err)
+      console.err('Error getting Temple information', personId, err)
     }
 
     // If the person's age is greater than the configured marriage threshold, and they have no spouse, then add them as a possibility
@@ -184,7 +194,8 @@ export default async function fetchPerson(configuration, personId, results) {
         configuration,
         currentPersonData.id,
         REASONS.NO_SPOUSE,
-        currentPersonData
+        currentPersonData,
+        counts
       )
       results.push(result)
     }
@@ -203,7 +214,7 @@ export default async function fetchPerson(configuration, personId, results) {
       personData.data.spouses.forEach(spouse => {
         if (Array.isArray(spouse.children)) {
           spouse.children.forEach(child => {
-            childrenPromiseArray.push(fetchPerson(configuration, child.id, results))
+            childrenPromiseArray.push(fetchPerson(configuration, child.id, results, counts))
           })
         }
       })
@@ -223,15 +234,12 @@ export default async function fetchPerson(configuration, personId, results) {
         personAge >= noChildrenAgeThreshold
       ) {
         if (numChildren === 0) {
-          results.push(buildResult(configuration, personId, REASONS.NO_CHILDREN, currentPersonData))
+          results.push(buildResult(configuration, personId, REASONS.NO_CHILDREN, currentPersonData, counts))
         } else {
-          results.push(buildResult(configuration, personId, REASONS.ONE_CHILD, currentPersonData))
+          results.push(buildResult(configuration, personId, REASONS.ONE_CHILD, currentPersonData, counts))
         }
       }
     })
   }
 }
 
-if (window.module) {
-  module.exports = fetchPerson
-}

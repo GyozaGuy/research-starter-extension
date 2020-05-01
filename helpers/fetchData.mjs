@@ -4,16 +4,7 @@ export default async function fetchData(
   { host, sessionId, personId, marriageAgeThreshold, noChildrenAgeThreshold, deathYearThreshold },
   notificationCallBack = () => {}
 ) {
-  // This doesn't work when running locallay and not in familysearch.org
-  // const host = window.location.protocol + '/' + window.location.hostname
-
-  // This doesn't work when running locally
-  // const sessionId = readCookie('fssessionid');
-
-  // const personId = 'KWNK-G6R';
-  // const generationsToCrawlUp = 4
-
-  // Opportunities to do further research on persons in this array
+  // Array of persons that might benefit from further research
   let results = []
 
   const configuration = {
@@ -26,11 +17,13 @@ export default async function fetchData(
     notificationCallBack // Optional callback that will be called when a person is being searched and when results are found
   }
 
-  // Start the recursive process
-  await fetchPerson(configuration, personId, results)
+  const counts = {
+    requestCount: 0,
+    resultCount: 0
+  };
 
-  // Show the results
-  // console.log(`There were ${results.length} results found ${JSON.stringify(results, null, 2)}`)
+  // Start the recursive process
+  await fetchPerson(configuration, personId, results, counts)
 
   return results
 }
