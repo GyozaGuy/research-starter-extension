@@ -1,21 +1,5 @@
 import messageActions from '../messageActions.mjs'
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules([
-      {
-        conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            css: ['#open-copy-pid'], // Person page
-            pageUrl: { hostSuffix: 'familysearch.org' }
-          })
-        ],
-        actions: [new chrome.declarativeContent.ShowPageAction()]
-      }
-    ])
-  })
-})
-
 let cachedEnvironment = ''
 let cachedHost = ''
 let cachedPersonId = ''
