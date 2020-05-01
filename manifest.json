@@ -2,7 +2,7 @@
   "name": "Research Starter",
   "version": "1.0",
   "description": "Helps identify potential issues with your family tree on FamilySearch.org.",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "permissions": ["declarativeContent", "storage"],
   "background": {
     "page": "background/background.html",
     "persistent": false
